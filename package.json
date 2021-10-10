@@ -1,0 +1,58 @@
+{
+  "name": "moleculer-sequelize",
+  "version": "1.0.0",
+  "description": "My Moleculer-based microservices project",
+  "scripts": {
+    "dev": "moleculer-runner --repl --hot services/**/*.service.js",
+    "start": "moleculer-runner",
+    "cli": "moleculer connect NATS",
+    "ci": "jest --watch",
+    "test": "jest --coverage",
+    "lint": "eslint services",
+    "dc:up": "docker-compose up --build -d",
+    "dc:logs": "docker-compose logs -f",
+    "dc:down": "docker-compose down"
+  },
+  "keywords": [
+    "microservices",
+    "moleculer"
+  ],
+  "author": "",
+  "devDependencies": {
+    "eslint": "^7.23.0",
+    "jest": "^26.6.3",
+    "jest-cli": "^26.6.3",
+    "moleculer-repl": "^0.6.4"
+  },
+  "dependencies": {
+    "auth-adapter": "git+https://cocolux-deploy:ftUpkJ1RXAsR2bBwfsyb@gitlab.com/csell-team/cocoshopvn/auth-adapter.git",
+    "bluebird": "^3.7.2",
+    "dotenv": "^10.0.0",
+    "dotenv-safe": "^8.2.0",
+    "ioredis": "^4.17.3",
+    "lodash": "^4.17.21",
+    "moleculer": "^0.14.13",
+    "moleculer-bull": "^0.2.8",
+    "moleculer-cron": "0.0.2",
+    "moleculer-db": "^0.8.4",
+    "moleculer-db-adapter-mongo": "^0.4.7",
+    "moleculer-db-adapter-sequelize": "^0.2.11",
+    "moleculer-web": "^0.9.1",
+    "moment-timezone": "^0.5.33",
+    "nats": "^1.4.12",
+    "pg": "^8.6.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.6.5"
+  },
+  "engines": {
+    "node": ">= 10.x.x"
+  },
+  "jest": {
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node",
+    "rootDir": "./services",
+    "roots": [
+      "../test"
+    ]
+  }
+}
