@@ -1,13 +1,14 @@
 const Banner =require("../model/banner.model");
 const { pick } =require("lodash");
 const { MoleculerError } = require("moleculer").Errors;
+//const BannerService=require("../services/banner.service");
 /**
  * Load store by id add to req locals.
  */
 exports.load = async (ctx) => {
 	try {
 		let banner=	await ctx.call("banner.get",{id:ctx.params.id});
-		console.log(banner);
+		//let banner=	BannerService.methods.getaa(ctx,{id:ctx.params.id});
 		ctx.locals = ctx.locals ? ctx.locals : {};
 		ctx.locals.banner = banner;
 	} catch (ex) {
@@ -63,7 +64,7 @@ exports.prepareUpdate = async (ctx) => {
 			throw new MoleculerError("Bạn chưa thay đổi gì để cập nhật!",404, "ERR_SOMETHING", { a: 5, nodeID: "node-666" });
 		}
 		const paramChanged = pick(params, dataChanged);
-		paramChanged.updated_at = new Date();
+		// paramChanged.updated_at = new Date();
 		ctx.body = paramChanged;
 		
 	} catch (ex) {

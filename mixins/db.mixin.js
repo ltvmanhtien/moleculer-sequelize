@@ -9,10 +9,8 @@ const DbService	= require("moleculer-db");
 
 module.exports = function(collection) {
 	const cacheCleanEventName = `cache.clean.${collection}`;
-
 	const schema = {
 		mixins: [DbService],
-
 		events: {
 			/**
 			 * Subscribe to the cache clean event. If it's triggered
@@ -60,7 +58,7 @@ module.exports = function(collection) {
 
 		schema.adapter = new MongoAdapter(process.env.MONGO_URI);
 		schema.collection = collection;
-	} else if (process.env.NODE_ENV === 'test') {
+	} else if (process.env.NODE_ENV === "test") {
 		// NeDB memory adapter for testing
 		schema.adapter = new DbService.MemoryAdapter();
 	} else {

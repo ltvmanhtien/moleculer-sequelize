@@ -110,5 +110,10 @@ module.exports={
 	// For Promotion Route
 	PROMOTION_VIEW: `${serviceName}_promotion_view`,
 	PROMOTION_CREATE: `${serviceName}_promotion_create`,
-	PROMOTION_UPDATE: `${serviceName}_promotion_update`
+	PROMOTION_UPDATE: `${serviceName}_promotion_update`,
+
+	STORE_VIEW: `${serviceName}_store_view`,
+	STORE_CREATE: `${serviceName}_store_create`,
+	STORE_UPDATE: `${serviceName}_store_update`,
+	STORE_DELETE: `${serviceName}_store_delete`,
 };

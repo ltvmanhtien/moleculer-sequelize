@@ -1,7 +1,8 @@
 "use strict";
 const DbService = require("moleculer-db");
-const { authorize } =require("auth-adapter");
-const Sequelize = require("sequelize");
+//const SequelizeDbAdapter =require("../mixins/db.sequelize");
+//const { authorize } =require("auth-adapter");
+// Sequelize = require("sequelize");
 const {adapter1} = require("../config/vars");
 const Banner =require("../model/banner.model");
 const { createValidation,updateValidation,listValidation } =require("../validation/banner.validation");
@@ -20,13 +21,13 @@ module.exports = {
 	mixins: [DbService],
 	adapter:adapter1,
 	model: Banner,
-
 	
 	/**
 	 * Settings
 	 */
 	settings: {
-
+		// field return 
+		// fields: ["_id", "url", "type", "title", "content", "position", "image_url", "mobile_url", "view_count", "click_count", "is_active", "is_visible", "created_at", "created_by"]
 	},
 
 	/**
@@ -54,7 +55,6 @@ module.exports = {
 				let entity=ctx.params;
 				try {
 					let result=await ctx.call("banner.create",entity);
-					console.log("result aaa");
 					return ({
 						code: 0,
 						message: messages.CREATE_SUCCESS,
@@ -80,16 +80,9 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { banner } = ctx.locals;
-					let entity=ctx.body;
-					console.log(entity);
+					let entity=ctx.params;
 					// console.log(ctx.params);
-					this.adapter.updateById(ctx.params.id,entity);
-					//let result= await ctx.call("banner.update",{where:{id:ctx.params.id}},entity);
-					// banner.update(entity)
-					// 	.then(result=>{
-					// 		console.log(result);
-					// 	})
-					// ;
+					await this.adapter.updateById(ctx.params.id,entity);
 					return ({
 						code: 0,
 						message: messages.UPDATE_SUCCESS
@@ -104,6 +97,8 @@ module.exports = {
 		 * 
 		 */
 		geted:{
+			auth: "required",
+			authen: [Permissions.BANNER_UPDATE],
 			rest: {
 				method: "GET",
 				path: "/"
@@ -114,7 +109,6 @@ module.exports = {
 					const filterParam=Banner.filterConditions(
 						ctx.params
 					);
-					console.log(filterParam);
 					const search={
 						// search:"home_v1_popup",
 						// searchFields:["type"],
@@ -131,6 +125,46 @@ module.exports = {
 					
 				}
 			}
+		},
+		get1:{
+			rest: {
+				method: "GET",
+				path: "/:id"
+			},
+			async handler(ctx){
+				try {
+				
+					return ({
+						code:0,
+						data:Banner.transform(ctx.locals.banner)
+					});
+				} catch (ex) {
+					throw new MoleculerError("get not successful", 400, "not sucessfull", ex);
+				}
+			}
+		},
+		deleted:{
+			rest: {
+				method: "DELETE",
+				path: "/:id"
+			},
+			async handler(ctx){
+				try {
+					const { banner } = ctx.locals;
+					let entity={
+						is_active: false,
+						updated_at: new Date()
+					};
+					this.adapter.updateById(ctx.params.id,entity);
+					return ({
+						code: 0,
+						message: messages.REMOVE_SUCCESS
+					});
+				} catch (ex) {
+					throw new MoleculerError("Update not successful", 400, "not sucessfull", ex);
+				}
+				
+			}
 		}
 	},
 
@@ -146,10 +180,16 @@ module.exports = {
 			],
 			created: [
 				// authorize([Permissions.BANNER_CREATE]),
-				 middleware.prepareParams
+				middleware.prepareParams
 			],
 			geted:[
 				middleware.count
+			],
+			get1:[
+				middleware.load,
+			],
+			deleted:[
+				middleware.load,
 			]
 		},
 		
@@ -177,7 +217,12 @@ module.exports = {
 	 * Methods
 	 */
 	methods: {
-
+		async getaa(ctx,{id}){
+			console.log("aaa");
+			let {dataValues}=await this.adapter.findOne({id});
+			ctx.locals = ctx.locals ? ctx.locals : {};
+			ctx.locals.banner = dataValues;
+		}
 	},
 	/**
 	 * Service created lifecycle event handler

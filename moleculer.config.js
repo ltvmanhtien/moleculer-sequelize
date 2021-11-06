@@ -201,7 +201,27 @@ module.exports = {
 			}
 		}
 	},
-
+	// tracing: {
+	// 	enabled: true,
+	// 	exporter: {
+	// 		type: "Zipkin",
+	// 		options: {
+	// 			// Base URL for Zipkin server.
+	// 			baseURL: "http://localhost:9411",
+	// 			// Sending time interval in seconds.
+	// 			interval: 5,
+	// 			// Additional payload options.
+	// 			payloadOptions: {
+	// 				// Set `debug` property in payload.
+	// 				debug: false,
+	// 				// Set `shared` property in payload.
+	// 				shared: false
+	// 			},
+	// 			// Default tags. They will be added into all span tags.
+	// 			defaultTags: null
+	// 		}
+	// 	}
+	// },
 	// Register custom middlewares
 	middlewares: [],
 

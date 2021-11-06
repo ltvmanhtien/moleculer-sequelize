@@ -2,7 +2,7 @@
 const DbService = require("moleculer-db");
 // const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const Sequelize = require("sequelize");
-const {adapterProduct} = require("../config/vars");
+// const {adapterProduct} = require("../config/vars");
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
  */
@@ -10,20 +10,20 @@ const {adapterProduct} = require("../config/vars");
 module.exports = {
 	name: "greeter",
 	mixins: [DbService],
-	adapter:adapterProduct,
-	model: {
-		name: "test11",
-		define: {
-			title: Sequelize.STRING,
-			content: Sequelize.TEXT,
-			votes: Sequelize.INTEGER,
-			author: Sequelize.INTEGER,
-			status: Sequelize.BOOLEAN
-		},
-		options: {
-			// Options from http://docs.sequelizejs.com/manual/tutorial/models-definition.html
-		}
-	},
+	// adapter:adapterProduct,
+	// model: {
+	// 	name: "test11",
+	// 	define: {
+	// 		title: Sequelize.STRING,
+	// 		content: Sequelize.TEXT,
+	// 		votes: Sequelize.INTEGER,
+	// 		author: Sequelize.INTEGER,
+	// 		status: Sequelize.BOOLEAN
+	// 	},
+	// 	options: {
+	// 		// Options from http://docs.sequelizejs.com/manual/tutorial/models-definition.html
+	// 	}
+	// },
 	
 	/**
 	 * Settings

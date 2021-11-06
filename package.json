@@ -26,10 +26,13 @@
   },
   "dependencies": {
     "auth-adapter": "git+https://cocolux-deploy:ftUpkJ1RXAsR2bBwfsyb@gitlab.com/csell-team/cocoshopvn/auth-adapter.git",
+    "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.2",
+    "dd-trace": "^1.5.0",
     "dotenv": "^10.0.0",
     "dotenv-safe": "^8.2.0",
     "ioredis": "^4.17.3",
+    "jaeger-client": "^3.18.1",
     "lodash": "^4.17.21",
     "moleculer": "^0.14.13",
     "moleculer-bull": "^0.2.8",
@@ -42,7 +45,8 @@
     "nats": "^1.4.12",
     "pg": "^8.6.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.6.5"
+    "sequelize": "^6.6.5",
+    "uuid": "^8.3.2"
   },
   "engines": {
     "node": ">= 10.x.x"

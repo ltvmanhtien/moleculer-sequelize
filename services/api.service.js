@@ -16,7 +16,14 @@ module.exports = {
 	settings: {
 		// Exposed port
 		port: process.env.PORT || 3000,
-
+		cors: {
+			origin: "*",
+			methods: ["GET", "OPTIONS", "POST","PATCH","PUT", "DELETE"],
+			allowedHeaders: "*",
+			//exposedHeaders: "*",
+			credentials: true,
+			maxAge: null
+		},
 		// Exposed IP
 		ip: "0.0.0.0",
 
@@ -38,10 +45,10 @@ module.exports = {
 				mergeParams: true,
 
 				// Enable authentication. Implement the logic into `authenticate` method. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Authentication
-				authentication: false,
+				authentication: true,
 
 				// Enable authorization. Implement the logic into `authorize` method. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Authorization
-				authorization: false,
+				authorization: true,
 
 				// The auto-alias feature allows you to declare your route alias directly in your services.
 				// The gateway will dynamically build the full routes from service schema.
@@ -51,6 +58,47 @@ module.exports = {
 					"POST /banner": `${SERVICE.Banner}.created`,
 					"PUT /banner/:id": `${SERVICE.Banner}.updated`,
 					"GET /banner": `${SERVICE.Banner}.geted`,
+					"GET /banner/:id": `${SERVICE.Banner}.get1`,
+					"DELETE /banner/:id": `${SERVICE.Banner}.deleted`,
+
+					"POST /products": `${SERVICE.Product}.created`,
+					"PUT /products/:id": `${SERVICE.Product}.updated`,
+					"PATCH /products/:id/block": `${SERVICE.Product}.block`,
+					"DELETE /products/:id": `${SERVICE.Product}.deleted`,
+					
+					"GET /product-options/:id": `${SERVICE.ProductOption}.get1`,
+					"POST /product-options": `${SERVICE.ProductOption}.created`,
+					"PUT /product-options/:id": `${SERVICE.ProductOption}.updated`,
+					// "POST /product-options": `${SERVICE.ProductOption}.created`,
+
+					"POST /categories": `${SERVICE.Category}.created`,
+					"PUT /categories/:id": `${SERVICE.Category}.updated`,
+					
+					"GET /categories/:id": `${SERVICE.Category}.get1`,
+					"DELETE /categories/:id": `${SERVICE.Category}.deleted`,
+
+					"POST /users": `${SERVICE.User}.created`,
+					"PUT /users/:id": `${SERVICE.User}.updated`,
+					"GET /users": `${SERVICE.User}.geted`,
+					"GET /users/:id": `${SERVICE.User}.get1`,
+					"DELETE /users/:id": `${SERVICE.User}.deleted`,
+					
+					"POST /stores": `${SERVICE.Store}.created`,
+					"PUT /stores/:id": `${SERVICE.Store}.updated`,
+					"GET /stores": `${SERVICE.Store}.geted`,
+					"GET /stores/:id": `${SERVICE.Store}.get1`,
+					"DELETE /stores/:id": `${SERVICE.Store}.deleted`,
+
+					"POST /orders": `${SERVICE.Order}.created`,
+					"PUT /orders/:id": `${SERVICE.Order}.updated`,
+					"GET /orders": `${SERVICE.Order}.geted`,
+					"GET /orders/:id": `${SERVICE.Order}.get1`,
+					"DELETE /orders/:id": `${SERVICE.Order}.deleted`,
+					// "POST /users/register": `${SERVICE.User}.register`,
+					// "PUT /users/:id": `${SERVICE.User}.updated`,
+					// "GET /users": `${SERVICE.User}.geted`,
+					// "GET /users/:id": `${SERVICE.User}.get1`,
+					// "DELETE /users/:id": `${SERVICE.User}.deleted`,
 				},
 
 				/** 
@@ -84,11 +132,90 @@ module.exports = {
 				bodyParsers: {
 					json: {
 						strict: false,
-						limit: "1MB"
+						limit: "25MB"
 					},
 					urlencoded: {
 						extended: true,
-						limit: "1MB"
+						limit: "25MB"
+					}
+				},
+
+				// Mapping policy setting. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Mapping-policy
+				mappingPolicy: "all", // Available values: "all", "restrict"
+
+				// Enable/disable logging
+				logging: true
+			},
+			{
+				path: "/api/v1",
+
+				whitelist: [
+					"**"
+				],
+
+				// Route-level Express middlewares. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Middlewares
+				use: [],
+
+				// Enable/disable parameter merging method. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Disable-merging
+				mergeParams: true,
+
+				// Enable authentication. Implement the logic into `authenticate` method. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Authentication
+				authentication: false,
+
+				// // Enable authorization. Implement the logic into `authorize` method. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Authorization
+				authorization: false,
+
+				// The auto-alias feature allows you to declare your route alias directly in your services.
+				// The gateway will dynamically build the full routes from service schema.
+				autoAliases: true,
+
+				aliases: {
+					"GET /products": `${SERVICE.Product}.geted`,
+					"GET /products/:id": `${SERVICE.Product}.get1`,
+
+					"GET /categories": `${SERVICE.Category}.geted`,
+
+					"POST /users/register": `${SERVICE.User}.register`,
+					
+					"POST /auth/login-token": `${SERVICE.Auth}.login`,
+				},
+
+				/** 
+				 * Before call hook. You can check the request.
+				 * @param {Context} ctx 
+				 * @param {Object} route 
+				 * @param {IncomingRequest} req 
+				 * @param {ServerResponse} res 
+				 * @param {Object} data
+				 * 
+				onBeforeCall(ctx, route, req, res) {
+					// Set request headers to context meta
+					ctx.meta.userAgent = req.headers["user-agent"];
+				}, */
+
+				/**
+				 * After call hook. You can modify the data.
+				 * @param {Context} ctx 
+				 * @param {Object} route 
+				 * @param {IncomingRequest} req 
+				 * @param {ServerResponse} res 
+				 * @param {Object} data
+				onAfterCall(ctx, route, req, res, data) {
+					// Async function which return with Promise
+					return doSomething(ctx, res, data);
+				}, */
+
+				// Calling options. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Calling-options
+				callingOptions: {},
+
+				bodyParsers: {
+					json: {
+						strict: false,
+						limit: "25MB"
+					},
+					urlencoded: {
+						extended: true,
+						limit: "25MB"
 					}
 				},
 
@@ -118,7 +245,6 @@ module.exports = {
 	},
 
 	methods: {
-
 		/**
 		 * Authenticate the request. It check the `Authorization` token value in the request header.
 		 * Check the token value & resolve the user by the token.
@@ -133,25 +259,27 @@ module.exports = {
 		 */
 		async authenticate(ctx, route, req) {
 			// Read the token from header
-			const auth = req.headers["authorization"];
+			const token = req.headers["authorization"];
 
-			if (auth && auth.startsWith("Bearer")) {
-				const token = auth.slice(7);
+			if (token && token.startsWith("Bearer")) {
+
 
 				// Check the token. Tip: call a service which verify the token. E.g. `accounts.resolveToken`
-				if (token == "123456") {
-					// Returns the resolved user. It will be set to the `ctx.meta.user`
-					return { id: 1, name: "John Doe" };
-
-				} else {
+				const decode = await ctx.call(`${SERVICE.Auth}.verifyToken`, { token });
+				if (decode) {
+					// console.log(decode);
+					req.body.user = decode;
+					
+				}
+				else {
 					// Invalid token
-					throw new ApiGateway.Errors.UnAuthorizedError(ApiGateway.Errors.ERR_INVALID_TOKEN);
+					throw new ApiGateway.Errors.ForbiddenError(ApiGateway.Errors.ERR_INVALID_TOKEN);
 				}
 
 			} else {
 				// No token. Throw an error or do nothing if anonymous access is allowed.
-				// throw new E.UnAuthorizedError(E.ERR_NO_TOKEN);
-				return null;
+				throw new ApiGateway.Errors.ForbiddenError(ApiGateway.Errors.ERR_NO_TOKEN);
+				// return null;
 			}
 		},
 
@@ -167,13 +295,36 @@ module.exports = {
 		 */
 		async authorize(ctx, route, req) {
 			// Get the authenticated user.
-			const user = ctx.meta.user;
+			const user = req.body.user;
+			user.id=user.sub;
+			if (req.$action.auth !== "required" && !user) {
+				throw new ApiGateway.Errors.UnAuthorizedError("NO_RIGHTS");
+			}
+			
+			ctx.meta.user = user;
+			let userGet=await ctx.call(`${SERVICE.User}.get`,{id:user.sub});
+			let listPermission=userGet.permissions;
+			let requirePermission=req.$action.authen;
+			if (!requirePermission){
+				requirePermission=[];
+			}
 
-			// It check the `auth` property in action schema.
-			if (req.$action.auth == "required" && !user) {
+			// check
+			let checker=false;
+			if(requirePermission.every(r => listPermission.includes(r))){
+				checker=true;
+			}else{
+				checker=false;
+			}
+			// check admin
+			if(userGet.role &&userGet.role.name==="System admin"){
+				checker=true;
+				console.log("admin");
+			}
+			console.log("dasdasd",checker);
+			if (!req.$action.authen || !checker) {
 				throw new ApiGateway.Errors.UnAuthorizedError("NO_RIGHTS");
 			}
 		}
-
 	}
 };

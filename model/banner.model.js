@@ -97,11 +97,15 @@ const Banner={
 			type: DataTypes.DATE,
 			defaultValue: DataTypes.NOW
 		},
-		updated_at: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
-		},
+		// updated_at: {
+		// 	type: DataTypes.DATE,
+		// 	defaultValue: DataTypes.NOW
+		// },
 		created_by: {
+			type: DataTypes.JSONB,
+			defaultValue: null // id | name
+		},
+		delete_by: {
 			type: DataTypes.JSONB,
 			defaultValue: null // id | name
 		}
@@ -226,7 +230,12 @@ const Banner={
 	
 		return changedProperties;
 	},
-	filterParams : (params) => pick(params, PUBLIC_FIELDS)
+	filterParams : (params) => pick(params, PUBLIC_FIELDS),
+	test:()=>{
+		console.log("aaa");
+		return "bbbb";
+	}
+
 };
 module.exports=Banner;
 // const Banner = Sequelize.define("banner", {

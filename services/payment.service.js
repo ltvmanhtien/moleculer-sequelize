@@ -3,34 +3,28 @@
 const DbService = require("moleculer-db");
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const Sequelize = require("sequelize");
+const { Payment } = require("../utils/service-name");
+const SERVICE =require("../utils/service-name");
 const {adapter1} = require("../config/vars");
-const ProductOption =require("../model/product.model");
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
  */
 
 module.exports = {
-	name: "productssss",
+	name: SERVICE.Payment,
+	// version: 1
+
+	/**
+	 * Mixins
+	 */
 	mixins: [DbService],
-	// adapter:adapter1,
-	// model: ProductOption,
+	adapter:adapter1,
+	model: Payment,
 	/**
 	 * Settings
 	 */
 	settings: {
-		// Available fields in the responses
-		fields: [
-			"_id",
-			"name",
-			"quantity",
-			"price"
-		],
-
-		// Validator for the `create` & `insert` actions.
-		entityValidator: {
-			name: "string|min:3",
-			price: "number|positive"
-		}
+		
 	},
 
 	/**
