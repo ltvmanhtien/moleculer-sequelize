@@ -13,6 +13,7 @@ const Product=require("../model/product.model");
 const ProductPrice=require("../model/product-price.model");
 const middlewares =require("../middleware/product-option.middleware");
 const messages = require("../utils/messages");
+const { pick }=require("lodash");
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
  */
@@ -62,6 +63,9 @@ module.exports = {
 			deleted:[
 				middlewares.load,
 				middlewares.prepareRemove
+			],
+			geted:[
+				middlewares.count
 			]
 		}
 	},
@@ -128,6 +132,88 @@ module.exports = {
 			
 			}
 		},
+		/**
+		 * 
+		 */
+		geted:{
+			rest: {
+				method: "GET",
+				path: "/"
+			},
+			auth:"required",
+			authen:[permissions.PRODUCT_VIEW],
+			async handler(ctx) {
+				try {
+					const {
+						sku,
+						keyword,
+						child_id,
+						parent_id,
+						product_sku,
+						product_name,
+						price_books,
+						attributes,
+						categories,
+						statuses,
+						brands,
+						types,
+						skus,
+						limit,
+						skip
+					}=ctx.params;
+					const filterParam=Product.filterConditions(
+						sku,
+						keyword,
+						child_id,
+						parent_id,
+						product_sku,
+						product_name,
+						price_books,
+						attributes,
+						categories,
+						statuses,
+						brands,
+						types,
+						skus,
+					);
+					const search={
+						// search:"home_v1_popup",
+						// searchFields:["type"],
+						
+						query:filterParam,
+						offset:skip,
+						limit:limit,
+						sort:{id:"desc"}
+					};
+				
+					// let result =ctx.call(`${SERVICE.Product}.find`)
+					// 	.then(async(value)=>{
+							
+					// 	 return await this.parseFindStock(ctx,value);
+						
+					// 	});
+					let result=await this.adapter.find(search);
+
+					
+					return ({
+						code: 0,
+						count: ctx.locals.count,
+						data:result.map(s => ProductOption.transform(s))
+						// sum:{
+						// 	"total_quantity": 78228,
+						// 	"total_order_quantity": 0
+						// },
+						//data: result.map(s => Product.transform(s))
+					});
+				} catch (ex) {
+					console.log(ex);
+					throw new MoleculerError("get not successful", 400, "not sucessfull", {
+						data:ex.message
+					});
+					
+				}
+			}
+		},
 		deleted:{
 			rest: {
 				method: "DELETE",
@@ -137,19 +223,24 @@ module.exports = {
 			authen:[permissions.PRODUCT_DELETE],
 			async handler(ctx){
 				try {
-					const { product } = ctx.locals;
+					const { productOption } = ctx.locals;
 					
 					let entity={
 						is_active: false,
-						updated_at: new Date()
+						updated_at: new Date(),
+		                updated_by: pick(ctx.mata.user, ["id", "name"])
+						
 					};
-					let result=	await this.adapter.model.update(entity,{where:{id:product.id}});	
+					let result=	await this.adapter.model.update(entity,{where:{id:productOption.id}});	
 					return ({
 						code: 0,
 						message: messages.REMOVE_SUCCESS
 					});
 				} catch (ex) {
-					throw new MoleculerError("delete not successful", 400, "not sucessfull", ex);
+					console.log(ex);
+					throw new MoleculerError("delete not successful", 400, "not sucessfull", {
+						data:ex.message
+					});
 				}
 				
 			}
@@ -211,17 +302,22 @@ module.exports = {
 	 * Methods
 	 */
 	methods: {
-		/**
-		 * Loading sample data to the collection.
-		 * It is called in the DB.mixin after the database
-		 * connection establishing & the collection is empty.
-		 */
-		async seedDB() {
-			await this.adapter.insertMany([
-				{ name: "Samsung Galaxy S10 Plus", quantity: 10, price: 704 },
-				{ name: "iPhone 11 Pro", quantity: 25, price: 999 },
-				{ name: "Huawei P30 Pro", quantity: 15, price: 679 },
-			]);
+		parseUpdateItem(item){
+			return this.adapter.model.update(
+				{
+					price: item.price,
+					original_price: item.original_price,
+					discount: item.discount,
+					normal_price: item.normal_price,
+					updated_at: new Date()
+				},
+				{
+					where: {
+						id: item.option_id,
+						is_active: true
+					}
+				}
+			);
 		}
 	},
 	events: {
@@ -328,6 +424,12 @@ module.exports = {
 						stack: error.stack
 					});
 				}
+			}
+		},
+		"product_option.update_promotion":{
+			async handler(payload){
+				const promise = payload.map(this.parseUpdateItem);
+				return Promise.all(promise);
 			}
 		}
 	},

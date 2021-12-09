@@ -1,6 +1,7 @@
 const {Sequelize,Model,Op,DataTypes} = require("sequelize");
 const {pick,omitBy,isNil,values,isUndefined,isEqual} =require("lodash");
 const  moment =require("moment-timezone");
+const serviceName = require("../utils/service-name");
 const PUBLIC_FIELDS = [
 	"store_id",
 	"store_name",
@@ -64,6 +65,14 @@ const Stock={
 		created_at: {
 			type: DataTypes.DATE,
 			defaultValue: DataTypes.NOW
+		},
+		createdAt: {
+			type: DataTypes.DATE,
+			defaultValue: () => new Date()
+		},
+		updatedAt:{
+			type: DataTypes.DATE,
+			defaultValue: () => new Date()
 		}
 	},
 	/**
@@ -97,6 +106,13 @@ const Stock={
 
 		return transformed;
 	},
-	filterParams :(params) => pick(params, PUBLIC_FIELDS)
+	filterParams :(params) => pick(params, PUBLIC_FIELDS),
+	Events : {
+		STOCK_CREATED: `${serviceName}.stock.created`,
+		STOCK_UPDATED: `${serviceName}.stock.updated`,
+		STOCK_DELETED: `${serviceName}.stock.deleted`,
+		STOCK_PROVIDER_UPDATED: `${serviceName}.stock-provider.updated`
+	},
+	EVENT_SOURCE : `${serviceName}.stock`
 };
 module.exports=Stock;

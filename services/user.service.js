@@ -1,13 +1,14 @@
 "use strict";
-
+const SequelizeDbAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
 const { MoleculerError } = require("moleculer").Errors;
-const {adapter1} = require("../config/vars");
+ const {adapter1} = require("../config/vars");
 const messages =require("../utils/messages");
 const SERVICE =require("../utils/service-name");
 const User=require("../model/user.model");
 const middleware =require("../middleware/user.middleware");
 const bcrypt=require("bcryptjs");
+const permissions =require("../utils/Permissions");
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
  */
@@ -15,7 +16,7 @@ const bcrypt=require("bcryptjs");
 module.exports = {
 	name: SERVICE.User,
 	mixins: [DbService],
-	adapter:adapter1,
+	adapter: adapter1,
 	model: User,
 	/**
 	 * Settings
@@ -119,25 +120,83 @@ module.exports = {
 				method: "GET",
 				path: "/"
 			},
+			auth:"required",
+			authen:[permissions.USER_VIEW],
 			// params: listValidation,
 			async handler(ctx) {
 				try {
+					const {
+						roles,
+						types,
+						groups,
+						stores,
+						provinces,
+						staffs,
+						genders,
+						statuses,
+						services,
+						keyword,
+						min_created_at,
+						max_created_at,
+						min_last_purchase,
+						max_last_purchase,
+						min_total_order_price,
+						max_total_order_price,
+						min_total_invoice_price,
+						max_total_invoice_price,
+						min_total_point,
+						max_total_point,
+						min_total_debt,
+						max_total_debt,
+					
+						// sort condition
+						skip = 0,
+						limit = 20,
+						sort_by = "desc",
+						order_by = "created_at",
+					}=ctx.params;
 					const filterParam=User.filterConditions(
-						ctx.params
+						roles,
+						types,
+						groups,
+						stores,
+						provinces,
+						staffs,
+						genders,
+						statuses,
+						services,
+						keyword,
+						min_created_at,
+						max_created_at,
+						min_last_purchase,
+						max_last_purchase,
+						min_total_order_price,
+						max_total_order_price,
+						min_total_invoice_price,
+						max_total_invoice_price,
+						min_total_point,
+						max_total_point,
+						min_total_debt,
+						max_total_debt,
+					
+					
 					);
 					const search={
-						// search:"home_v1_popup",
-						// searchFields:["type"],
-						query:filterParam
+						query:filterParam,
+						offset:skip,
+						limit:limit,
+						sort:{"created_at":sort_by}
 					};
 					let result=await this.adapter.find(search);
 					return ({
 						code: 0,
-						count: ctx.totalRecords,
+						count: ctx.locals.count,
 						data: result.map(s => User.transform(s))
 					});
 				} catch (ex) {
-					throw new MoleculerError("Update not successful", 400, "not sucessfull", ex);
+					throw new MoleculerError("get not successful", 400, "not sucessfull", {
+						message:ex.message
+					});
 					
 				}
 			}

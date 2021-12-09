@@ -1,0 +1,6 @@
+
+
+
+exports.hookAfterCreate= async (ctx)=>{
+	
+};

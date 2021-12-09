@@ -214,9 +214,8 @@ function checkMinMaxOfConditionFields(options, field, type = "Number") {
  * Load query
  * @param {*} params
  */
-function filterConditions(params) {
+OrderModel.filterConditions=(params) =>{
 	const options = omitBy(params, isNil);
-
 	if (options.types) {
 		options.type = {
 			[Op.in]: options.types.split(",")
@@ -375,7 +374,7 @@ function filterConditions(params) {
 	delete options.date_type;
 
 	return options;
-}
+};
 
 /**
  * Load sort query
@@ -843,6 +842,8 @@ const Order={
 		}
 		
 	},
+	Types:OrderModel.Types,
+	CUSTOMER_FIELDS:OrderModel.CUSTOMER_FIELDS,
 	CHANNEL_FIELDS:OrderModel.CHANNEL_FIELDS,
 	PAYMENT_FIELDS:OrderModel.PAYMENT_FIELDS,
 	SHIPPING_FIELDS:OrderModel.SHIPPING_FIELDS,
@@ -851,6 +852,7 @@ const Order={
 	StatusNames:OrderModel.StatusNames,
 	Statuses:OrderModel.Statuses,
 	sortConditions:sortConditions,
+	filterConditions:OrderModel.filterConditions,
 	getChangedProperties:OrderModel.getChangedProperties,
 	transform:OrderModel.transform,
 	generateCode: OrderModel.generateCode,

@@ -1,0 +1,21 @@
+
+[
+  {
+    "labels": {
+      "job": "user",
+      "nodeID": "user-17"
+    },
+    "targets": [
+      "user:3030"
+    ]
+  },
+  {
+    "labels": {
+      "job": "api",
+      "nodeID": "api-17"
+    },
+    "targets": [
+      "api:3030"
+    ]
+  }
+]

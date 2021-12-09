@@ -136,12 +136,20 @@ module.exports = {
 			// params: listValidation,
 			async handler(ctx) {
 				try {
+					const {
+						keyword,
+						limit,
+						skip
+
+					}=ctx.params;
 					const filterParam=Store.filterConditions(
-						ctx.params
+						keyword
 					);
 					const search={
 						// search:"home_v1_popup",
 						// searchFields:["type"],
+						offset:skip,
+						limit:limit,
 						query:filterParam
 					};
 					let store=await this.adapter.find(search);
@@ -150,7 +158,10 @@ module.exports = {
 						data:store.map(Store.transform)
 					});
 				} catch (ex) {
-					throw new MoleculerError("list not successful", 400, "not sucessfull", ex);
+					throw new MoleculerError("list not successful", 400, "not sucessfull", {
+						data:400,
+						messages:ex.message
+					});
 						
 				}
 			}

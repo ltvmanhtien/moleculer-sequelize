@@ -4,12 +4,12 @@ module.exports = {
 	listValidation: {
 		// pagging
 		skip: {
-			type:"number",
+			type:"string",
 			min:0,
 			optional:true
 		},
 		limit:{
-			type:"number",
+			type:"string",
 			min:0,
 			max:10000,
 			optional:true

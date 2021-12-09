@@ -22,10 +22,15 @@ exports.load = async (ctx) => {
  */
 exports.count = async (ctx) => {
 	try {
-		const filterParam=Banner.filterConditions(
-			ctx.params
-		);
-		ctx.totalRecords = await  ctx.call("banner.count",{query:filterParam});
+		const {
+			types,
+			is_visible
+		}=ctx.params;
+		const options = Banner.filterConditions({
+			types,
+			is_visible
+		});
+		ctx.totalRecords = await  ctx.call("banner.count",{query:options});
 	} catch (ex) {
 		throw new MoleculerError(ex, 501, "ERR_SOMETHING", { a: 5, nodeID: "node-666" });
 	}

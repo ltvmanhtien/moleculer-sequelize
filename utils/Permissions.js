@@ -116,4 +116,17 @@ module.exports={
 	STORE_CREATE: `${serviceName}_store_create`,
 	STORE_UPDATE: `${serviceName}_store_update`,
 	STORE_DELETE: `${serviceName}_store_delete`,
+
+	USER_VIEW: `${serviceName}_user_view`,
+	USER_CREATE: `${serviceName}_user_create`,
+	USER_UPDATE: `${serviceName}_user_update`,
+	USER_DELETE: `${serviceName}_user_delete`,
+
+	ATTRIBUTE_VALUE_VIEW: `${serviceName}_attribute_value_view`,
+	ATTRIBUTE_VALUE_CREATE: `${serviceName}_attribute_value_create`,
+	ATTRIBUTE_VALUE_UPDATE: `${serviceName}_attribute_value_update`,
+	ATTRIBUTE_VALUE_DELETE: `${serviceName}_attribute_value_delete`,
+
+
+
 };

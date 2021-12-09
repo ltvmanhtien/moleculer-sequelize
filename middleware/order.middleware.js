@@ -2,7 +2,7 @@
 const serviceName =require("../utils/service-name");
 const { MoleculerError } = require("moleculer").Errors;
 const Order =require("../model/order.model");
-const { pick } =require("lodash");
+const { pick ,omitBy,isNil} =require("lodash");
 const orderAdapter =require("../adapter/order-adapter");
 /**
  * Load order by id appendd to locals.
@@ -22,42 +22,195 @@ exports.load = async (ctx) => {
  * Load total order appendd to locals.
  */
 exports.count = async (ctx) => {
+
 	try {
+		const {
+			code,
+			note,
+			hashtag,
+			customer,
+			receiver,
+			is_match,
+			order_id,
+			user_code,
+			date_type,
+			order_code,
+			return_code,
+			delivery_code,
+			product_sku,
+			product_name,
+			product_note,
+			min_created_at,
+			max_created_at,
+			payment_methods,
+			shipping_methods,
+			statuses,
+			channels,
+			sources,
+			staffs,
+			types,
+			stores,
+		} = ctx.params;
 		const filterParam=Order.filterConditions(
-			ctx.params
+			code,
+			note,
+			hashtag,
+			customer,
+			receiver,
+			is_match,
+			order_id,
+			user_code,
+			date_type,
+			order_code,
+			return_code,
+			delivery_code,
+			product_sku,
+			product_name,
+			product_note,
+			min_created_at,
+			max_created_at,
+			payment_methods,
+			shipping_methods,
+			statuses,
+			channels,
+			sources,
+			staffs,
+			types,
+			stores,
 		);
-		ctx.totalRecords = await  ctx.call(`${serviceName}.count`,{query:filterParam});
+		ctx.locals = ctx.locals ? ctx.locals : {};
+		ctx.locals.totalRecords = await  ctx.call(`${serviceName.Order}.count`,{query:filterParam});
 	} catch (ex) {
-		throw new MoleculerError(ex, 501, "ERR_SOMETHING", ex);
+		throw new MoleculerError(ex, 501, "ERR_SOMETHING", {
+			data:ex.message
+		});
 	}
 };
 
 /**
  * Load sum for filter.
  */
-exports.sum = async (req, res, next) => {
+exports.sum = async (ctx) => {
 	try {
-		req.locals = req.locals ? req.locals : {};
-		if (req.authInfo.accessLevel === ConsumerGroups.STAFF) {
-			const sum = await Order.sumRecords(req.query);
-			req.locals.sum = sum;
-		}
-		return next();
+	
+		const {
+			code,
+			note,
+			hashtag,
+			customer,
+			receiver,
+			is_match,
+			order_id,
+			user_code,
+			date_type,
+			order_code,
+			return_code,
+			delivery_code,
+			product_sku,
+			product_name,
+			product_note,
+			min_created_at,
+			max_created_at,
+			payment_methods,
+			shipping_methods,
+			statuses,
+			channels,
+			sources,
+			staffs,
+			types,
+			stores,
+		} = ctx.params;
+		const options = Order.filterConditions({
+			code,
+			note,
+			hashtag,
+			customer,
+			receiver,
+			is_match,
+			order_id,
+			user_code,
+			date_type,
+			order_code,
+			return_code,
+			delivery_code,
+			product_sku,
+			product_name,
+			product_note,
+			min_created_at,
+			max_created_at,
+			payment_methods,
+			shipping_methods,
+			statuses,
+			channels,
+			sources,
+			staffs,
+			types,
+			stores,
+		});
+		const total_quantity = await ctx.call(`${serviceName.Order}.sum`,
+			{
+				attribute:"total_quantity",
+				options:options
+			}
+		);
+		console.log("total_quantity",total_quantity);
+		const total_paid = await ctx.call(`${serviceName.Order}.sum`,
+			{	
+				attribute:"total_paid",
+				options:options
+			}
+		);
+		const total_unpaid = await ctx.call(`${serviceName.Order}.sum`,
+			{
+				attribute:"total_unpaid",
+				options:options 
+			}
+		);
+		const total_discount_value = await ctx.call(`${serviceName.Order}.sum`,
+			{
+				attribute:"total_discount_value",
+				options:options 
+			}
+		);
+		const total_price_before_discount = await ctx.call(`${serviceName.Order}.sum`,
+			{
+				attribute:"total_price_before_discount",
+				options:options 
+			}
+		);
+		const total_price = await ctx.call(`${serviceName.Order}.sum`,
+			{   
+				attribute:"total_price",
+				options:options 
+			}
+		);
+		ctx.locals = ctx.locals ? ctx.locals : {};
+		ctx.locals.sum={
+			total_paid,
+			total_price,
+			total_unpaid,
+			total_quantity,
+			total_discount_value,
+			total_price_before_discount
+		};
+		
 	} catch (ex) {
-		return ErrorHandler(ex, req, res, next);
+		throw new MoleculerError(ex, 501, "ERR_SOMETHING", {
+			data:ex.message
+		});
 	}
 };
 
-/**
- * Pick params append to req
- */
-exports.filterQuery = (ctx) => {
-	const params = omitBy(req.query, isNil);
-	const includeRestrictedFields = req.authInfo.accessLevel === ConsumerGroups.STAFF;
-	params.user_code = includeRestrictedFields ? params.user_code : req.user.id;
-	req.query = params;
-	next();
-};
+// /**
+//  * Pick params append to req
+//  */
+// exports.filterQuery = (ctx) => {
+// 	const params = omitBy(ctx.params, isNil);
+// 	const includeRestrictedFields = req.authInfo.accessLevel === ConsumerGroups.STAFF;
+// 	params.user_code = includeRestrictedFields ? params.user_code : req.user.id;
+// 	req.query = params;
+// 	next();
+// };
 
 /**
  * Perpare order params
@@ -68,11 +221,9 @@ exports.prepareOrder = async (ctx) => {
 		const params = Order.filterParams(ctx.params);
 		// params.device_id = ctx.headers["user-agent"];
 		params.created_by = pick(ctx.meta.user, ["id", "name"]);
-		console.log("bbb");
 		if (params.order && params.order.id) {
 			await ctx.call(`${serviceName.Order}.checkOrderHandler`,{id:params.order.id});
 		}
-		console.log("aaa");
 		if (params.status) {
 			params.status_name = Order.StatusNames[
 				params.status.toUpperCase()
@@ -87,7 +238,6 @@ exports.prepareOrder = async (ctx) => {
 			params.completed_at = new Date();
 		}
 		if (params.products && params.products.length) {
-			console.log("ddd");
 			params.products = await orderAdapter.parseItems(ctx,params.products);
 			const productPath = params.products.map(p => `${p.sku}:${p.name}`);
 			params.normalize_product = productPath.join(" - ");
@@ -122,7 +272,6 @@ exports.prepareOrder = async (ctx) => {
 				Order.CUSTOMER_FIELDS
 			);
 		}
-		console.log("ccc");
 		const returnAmount = await orderAdapter.calTotalPrice(params);
 		params.total_quantity = returnAmount.total_quantity;
 		params.total_price_before_discount = returnAmount.total_price_before_discount;
@@ -136,23 +285,25 @@ exports.prepareOrder = async (ctx) => {
 		ctx.params = params;
 		
 	} catch (ex) {
-		throw new MoleculerError(ex, 400, "ERR_SOMETHING", ex);
+		throw new MoleculerError(ex, 400, "ERR_SOMETHING", {
+			data:ex.message
+		});
 	}
 };
 
 /**
  * Perpare order update
  */
-exports.prepareUpdate = async (ctx, res, next) => {
+exports.prepareUpdate = async (ctx) => {
 	try {
 		const { order: oldModel } = ctx.locals;
 		const params = Order.filterParams(ctx.params);
 		const dataChanged = Order.getChangedProperties({ oldModel, newModel: params });
 		const paramChanged = pick(params, dataChanged);
-		paramChanged.updated_by = pick(ctx.user, ["id", "name"]);
+		paramChanged.updated_by = pick(ctx.meta.user, ["id", "name"]);
 		paramChanged.updated_at = new Date();
+		// paramChanged.id=oldModel.id;
 		ctx.params = paramChanged;
-		return next();
 	} catch (ex) {
 		throw new MoleculerError(ex, 400, "ERR_SOMETHING", ex);
 	}
@@ -165,20 +316,22 @@ exports.prepareReplace = async (ctx, res, next) => {
 	try {
 		const { order } = ctx.locals;
 		if (order.status === Order.Statuses.COMPLETED) {
-			throw new APIError({
-				status: httpStatus.BAD_ctxUEST,
+			throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
 				message: "Không thể xử lý đơn hàng đã hoàn thành"
 			});
+		
 		}
 		if (order.status === Order.Statuses.CANCELLED) {
-			throw new APIError({
-				status: httpStatus.BAD_ctxUEST,
+			throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
 				message: "Không thể xử lý đơn hàng đã huỷ"
 			});
+		
 		}
 		return next();
 	} catch (ex) {
-		return ErrorHandler(ex, ctx, res, next);
+		throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
+			message: ex.message
+		});
 	}
 };
 
@@ -189,20 +342,20 @@ exports.prepareConfirm = async (ctx, res, next) => {
 	try {
 		const { order } = ctx.locals;
 		if (order.status === Order.Statuses.COMPLETED) {
-			throw new APIError({
-				status: httpStatus.BAD_ctxUEST,
+			throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
 				message: "Không thể xử lý đơn hàng đã hoàn thành"
 			});
 		}
 		if (order.status === Order.Statuses.CANCELLED) {
-			throw new APIError({
-				status: httpStatus.BAD_ctxUEST,
+			throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
 				message: "Không thể xử lý đơn hàng đã huỷ"
 			});
 		}
 		return next();
 	} catch (ex) {
-		return ErrorHandler(ex, ctx, res, next);
+		throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
+			message: ex.message
+		});
 	}
 };
 
@@ -213,26 +366,25 @@ exports.prepareComplete = async (ctx, res, next) => {
 	try {
 		const { order } = ctx.locals;
 		if (order.status === Order.Statuses.DRAFT) {
-			throw new APIError({
-				status: httpStatus.BAD_ctxUEST,
+			throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
 				message: "Không thể xử lý đơn hàng chưa được duyệt"
 			});
 		}
 		if (order.status === Order.Statuses.COMPLETED) {
-			throw new APIError({
-				status: httpStatus.BAD_ctxUEST,
+			throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
 				message: "Không thể xử lý đơn hàng đã hoàn thành"
 			});
 		}
 		if (order.status === Order.Statuses.CANCELLED) {
-			throw new APIError({
-				status: httpStatus.BAD_ctxUEST,
+			throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
 				message: "Không thể xử lý đơn hàng đã huỷ"
 			});
 		}
 		return next();
 	} catch (ex) {
-		return ErrorHandler(ex, ctx, res, next);
+		throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
+			message: ex.message
+		});
 	}
 };
 
@@ -243,10 +395,10 @@ exports.prepareCancel = async (ctx, res, next) => {
 	try {
 		const { order } = ctx.locals;
 		if (order.status === Order.Statuses.CANCELLED) {
-			throw new APIError({
-				status: httpStatus.BAD_ctxUEST,
+			throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
 				message: "Đơn hàng này đã bị hủy trước đó!"
 			});
+
 		}
 		const returnCount = await Order.count({
 			where: {
@@ -257,13 +409,15 @@ exports.prepareCancel = async (ctx, res, next) => {
 			}
 		});
 		if (returnCount > 0) {
-			throw new APIError({
-				status: httpStatus.BAD_ctxUEST,
+			throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
 				message: "Bạn cần huỷ phiếu trả hàng trước khi huỷ hoá đơn"
 			});
+		
 		}
 		return next();
 	} catch (ex) {
-		return ErrorHandler(ex, ctx, res, next);
+		throw new MoleculerError("ERROR", 400, "ERR_SOMETHING", {
+			message: ex.message
+		});
 	}
 };

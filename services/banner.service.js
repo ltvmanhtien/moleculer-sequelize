@@ -106,13 +106,18 @@ module.exports = {
 			params: listValidation,
 			async handler(ctx) {
 				try {
-					const filterParam=Banner.filterConditions(
-						ctx.params
-					);
+					const {
+						types,
+						is_visible
+					}=ctx.params;
+					const options = Banner.filterConditions({
+						types,
+						is_visible
+					});
 					const search={
 						// search:"home_v1_popup",
 						// searchFields:["type"],
-						query:filterParam
+						query:options
 					};
 					let result=await this.adapter.find(search);
 					return ({

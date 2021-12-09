@@ -1,7 +1,7 @@
 const {Sequelize,Model,Op,DataTypes} = require("sequelize");
 const {pick,omitBy,isNil,values,isUndefined,isEqual} =require("lodash");
 const  moment =require("moment-timezone");
-// class BannerModel extends Model { }
+class AttributeValueModel extends Model { }
 const PUBLIC_FIELDS = [
 	"id",
 	"slug",
@@ -17,6 +17,55 @@ const PUBLIC_FIELDS = [
 	"meta_description",
 	"attribute_code",
 ];
+	/**
+ * Converter
+ * @param {*} str
+ */
+AttributeValueModel.convertToEn= (str) =>{
+	str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+	str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+	str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+	str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+	str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+	str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+	str = str.replace(/đ/g, "d");
+	str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
+	str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
+	str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
+	str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
+	str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
+	str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
+	str = str.replace(/Đ/g, "D");
+	str = str.toLowerCase();
+	return str;
+};
+
+AttributeValueModel.filterConditions =(params) =>{
+	const options = omitBy(params, isNil);
+	let condition = "attr.is_active = true \n";
+	if (options.keyword) {
+		condition += `AND item.normalize_name ILIKE '%${options.keyword}%' \n`;
+	}
+	if (options.is_visible) {
+		condition += `AND attr.is_visible = ${options.is_visible} \n`;
+	}
+	if (options.attribute_code) {
+		condition += `AND attr.attribute_code = '${options.attribute_code}' \n`;
+	}
+	if (options.attribute_value) {
+		condition += `AND attr.value ILIKE '%${options.attribute_value}%' \n`;
+	}
+	if (options.categories) {
+		const categories = options.categories.split(",");
+		categories.forEach(c => condition += `AND '${c}' = ANY (item.category_path) \n`);
+	}
+	if (options.attributes) {
+		const attributes = options.attributes.split(",");
+		attributes.forEach(a => condition += `AND '${a}' = ANY (item.attribute_path) \n`);
+	}
+	return condition;
+};
+
 const AttributeValue={
 	name: "tbl_attribute_values",
 	define: {
@@ -30,6 +79,10 @@ const AttributeValue={
 			defaultValue: null
 		},
 		icon: {
+			type: DataTypes.STRING(255),
+			defaultValue: null
+		},
+		name: {
 			type: DataTypes.STRING(255),
 			defaultValue: null
 		},
@@ -90,7 +143,7 @@ const AttributeValue={
 		created_by: {
 			type: DataTypes.JSONB,
 			defaultValue: null
-		},
+		}
 		
 	},
 	options: {
@@ -102,28 +155,7 @@ const AttributeValue={
 		// BANNER_DELETED: `${serviceName}.banner.deleted`,
 	},
 
-	/**
- * Converter
- * @param {*} str
- */
-	convertToEn:(str) =>{
-		str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
-		str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
-		str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
-		str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
-		str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
-		str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
-		str = str.replace(/đ/g, "d");
-		str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
-		str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
-		str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
-		str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
-		str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
-		str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
-		str = str.replace(/Đ/g, "D");
-		str = str.toLowerCase();
-		return str;
-	},
+
 	/**
  * Transform postgres model to expose object
  */
@@ -194,6 +226,7 @@ const AttributeValue={
 
 		return changedProperties;
 	},
+	filterConditions:AttributeValueModel.filterConditions,
 	filterParams :(params) => pick(params, PUBLIC_FIELDS),
 	getParentPath : async (parent_id) => {
 		// if (!parent_id) {
@@ -205,3 +238,4 @@ const AttributeValue={
 		// return path;
 	}
 };
+module.exports=AttributeValue;

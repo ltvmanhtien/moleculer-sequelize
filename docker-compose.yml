@@ -5,7 +5,7 @@ services:
   api:
     build:
       context: .
-    image: moleculer-sequelize
+    image: manhtien465/backend1-api
     env_file: docker-compose.env
     environment:
       SERVICES: api
@@ -19,41 +19,65 @@ services:
       - "traefik.http.services.api-gw.loadbalancer.server.port=3000"
     networks:
       - internal
-
-  greeter:
+  user:
     build:
       context: .
-    image: moleculer-sequelize
+    image: manhtien465/backend1-user
     env_file: docker-compose.env
     environment:
-      SERVICES: greeter
+      SERVICES: user
     depends_on:
-      - nats
-      - redis
-    networks:
-      - internal
-
-  products:
-    build:
-      context: .
-    image: moleculer-sequelize
-    env_file: docker-compose.env
-    environment:
-      SERVICES: products
-    depends_on:
+      - postgres107
       - mongo
       - nats
       - redis
     networks:
       - internal
-
+  auth:
+    build:
+      context: .
+    image: manhtien465/backend1-auth
+    env_file: docker-compose.env
+    environment:
+      SERVICES: auth
+    depends_on:
+      - postgres107
+      - mongo
+      - nats
+      - redis
+    networks:
+      - internal
+  postgres107:
+    image: postgres:10.5
+    hostname: postgres105
+    restart: always
+    volumes:
+      - postgres107:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - internal
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: moleculer
+  pgAdmin:
+    image: dpage/pgadmin4
+    ports:
+      - '16543:80'
+    environment:
+      SERVICES: pgadmin
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - internal
+    restart: always
   mongo:
     image: mongo:4
     volumes:
       - data:/data/db
     networks:
       - internal
-
   nats:
     image: nats:2
     networks:
@@ -78,9 +102,22 @@ services:
     networks:
       - internal
       - default
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - 3030:9090
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./prometheus:/etc/prometheus:ro ## Share "prometheus" dir with Prometheus service
+    networks:
+      - internal
 
 networks:
   internal:
 
 volumes:
   data:
+  postgres107:
+  

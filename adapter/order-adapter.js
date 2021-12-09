@@ -33,7 +33,7 @@ async function getItem(ctx,item) {
 	if (item.option_id) {
 		
 		const product =await ctx.call(`${serviceName.ProductOption}.get`,{id:item.option_id});
-
+		console.log("productaaa",product);
 		returnOption.sku = product.sku;
 		returnOption.name = product.name;
 		returnOption.note = product.note || item.note;
@@ -45,6 +45,7 @@ async function getItem(ctx,item) {
 	if (item.id) {
 		
 		const product =await ctx.call(`${serviceName.Product}.get`,{id:item.id});
+		console.log("product",product);
 		returnOption.type = product.type;
 		returnOption.unit = product.unit;
 		returnOption.weight = +product.weight;

@@ -20,7 +20,7 @@ async function parseProductOption(ctx,products){
 
 exports.load = async (ctx) => {
 	try {
-		const  product  =await ctx.call(`${serviceName.Product}.get`,{id:ctx.params.id});
+		const  product  =await ctx.call(`${serviceName.Product}.getSkuOrId`,{id:ctx.params.id});
 		ctx.locals = ctx.locals ? ctx.locals : {};
 		ctx.locals.product = product;
 	} catch (ex) {
@@ -30,7 +30,9 @@ exports.load = async (ctx) => {
 exports.loadProductOption=async(ctx)=>{
 	let {product}=ctx.locals;
 	let search={
-		parent_id:product.id
+		parent_id:product.id,
+		is_active:true,
+		
 	};
 	const  listProductOption  =await ctx.call(`${serviceName.ProductOption}.find`,{query:search});
 	const listStock= await parseProductOption(ctx,listProductOption);

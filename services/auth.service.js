@@ -1,8 +1,7 @@
 "use strict";
 
 const DbService = require("moleculer-db");
-const SqlAdapter = require("moleculer-db-adapter-sequelize");
-const Sequelize = require("sequelize");
+
 const {pick}=require("lodash");
 const {adapter1} = require("../config/vars");
 const SERVICE =require("../utils/service-name");

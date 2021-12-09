@@ -15,7 +15,7 @@ module.exports = {
 	// More info about settings: https://moleculer.services/docs/0.14/moleculer-web.html
 	settings: {
 		// Exposed port
-		port: process.env.PORT || 3000,
+		port: process.env.PORT_API || 3000,
 		cors: {
 			origin: "*",
 			methods: ["GET", "OPTIONS", "POST","PATCH","PUT", "DELETE"],
@@ -55,11 +55,12 @@ module.exports = {
 				autoAliases: true,
 
 				aliases: {
-					"POST /banner": `${SERVICE.Banner}.created`,
-					"PUT /banner/:id": `${SERVICE.Banner}.updated`,
-					"GET /banner": `${SERVICE.Banner}.geted`,
-					"GET /banner/:id": `${SERVICE.Banner}.get1`,
-					"DELETE /banner/:id": `${SERVICE.Banner}.deleted`,
+					"POST /banners": `${SERVICE.Banner}.created`,
+					"PUT /banners/:id": `${SERVICE.Banner}.updated`,
+					// "GET /banners": `${SERVICE.Banner}.geted`,
+
+					"GET /banners/:id": `${SERVICE.Banner}.get1`,
+					"DELETE /banners/:id": `${SERVICE.Banner}.deleted`,
 
 					"POST /products": `${SERVICE.Product}.created`,
 					"PUT /products/:id": `${SERVICE.Product}.updated`,
@@ -69,11 +70,12 @@ module.exports = {
 					"GET /product-options/:id": `${SERVICE.ProductOption}.get1`,
 					"POST /product-options": `${SERVICE.ProductOption}.created`,
 					"PUT /product-options/:id": `${SERVICE.ProductOption}.updated`,
+					"DELETE /product-options/:id": `${SERVICE.ProductOption}.deleted`,
+					"GET /product-options": `${SERVICE.ProductOption}.geted`,
 					// "POST /product-options": `${SERVICE.ProductOption}.created`,
 
 					"POST /categories": `${SERVICE.Category}.created`,
 					"PUT /categories/:id": `${SERVICE.Category}.updated`,
-					
 					"GET /categories/:id": `${SERVICE.Category}.get1`,
 					"DELETE /categories/:id": `${SERVICE.Category}.deleted`,
 
@@ -90,10 +92,44 @@ module.exports = {
 					"DELETE /stores/:id": `${SERVICE.Store}.deleted`,
 
 					"POST /orders": `${SERVICE.Order}.created`,
-					"PUT /orders/:id": `${SERVICE.Order}.updated`,
+					"POST /orders/:id/complete": `${SERVICE.Order}.completed`,
+					"PATCH /orders/:id": `${SERVICE.Order}.updated`,
 					"GET /orders": `${SERVICE.Order}.geted`,
-					"GET /orders/:id": `${SERVICE.Order}.get1`,
 					"DELETE /orders/:id": `${SERVICE.Order}.deleted`,
+
+
+					"POST /price-books": `${SERVICE.PriceBook}.created`,
+					"PUT /price-books/:id": `${SERVICE.PriceBook}.updated`,
+					"GET /price-books": `${SERVICE.PriceBook}.geted`,
+					"DELETE /price-books/:id": `${SERVICE.PriceBook}.deleted`,
+
+					"GET /stock-histories": `${SERVICE.StockHistory}.geted`,
+
+					
+					"POST /attribute-values": `${SERVICE.AttributeValue}.created`,
+					"PUT /attribute-values/:id": `${SERVICE.AttributeValue}.updated`,
+					"GET /attribute-values/:id": `${SERVICE.AttributeValue}.get1`,
+					"DELETE /attribute-values/:id": `${SERVICE.AttributeValue}.deleted`,
+
+					"POST /provinces":`${SERVICE.Province}.created`,
+					"PUT /provinces/:id":`${SERVICE.Province}.updated`,
+					"DELETE /provinces/:id":`${SERVICE.Province}.deleted`,
+					
+					"POST /districts":`${SERVICE.District}.created`,
+					"PUT /districts/:id":`${SERVICE.District}.updated`,
+					"DELETE /districts/:id":`${SERVICE.District}.deleted`,
+
+					"POST /wards":`${SERVICE.Ward}.created`,
+					"PUT /wards/:id":`${SERVICE.Ward}.updated`,
+					"DELETE /wards/:id":`${SERVICE.Ward}.deleted`,
+
+					"POST /promotions":`${SERVICE.Promotion}.created`,
+					"PUT /promotions/:id":`${SERVICE.Promotion}.updated`,
+					"DELETE /promotions/:id":`${SERVICE.Promotion}.deleted`,
+					"POST /promotions/:id/finish":`${SERVICE.Promotion}.finish`,
+					"POST /promotions/:id/block":`${SERVICE.Promotion}.block`,
+					"POST /promotions/:id/active":`${SERVICE.Promotion}.active`,
+					"POST /promotions/:id/cancel":`${SERVICE.Promotion}.cancel`,
 					// "POST /users/register": `${SERVICE.User}.register`,
 					// "PUT /users/:id": `${SERVICE.User}.updated`,
 					// "GET /users": `${SERVICE.User}.geted`,
@@ -109,10 +145,12 @@ module.exports = {
 				 * @param {ServerResponse} res 
 				 * @param {Object} data
 				 * 
+				 * 
+				 * */
 				onBeforeCall(ctx, route, req, res) {
 					// Set request headers to context meta
 					ctx.meta.userAgent = req.headers["user-agent"];
-				}, */
+				},
 
 				/**
 				 * After call hook. You can modify the data.
@@ -170,14 +208,35 @@ module.exports = {
 				autoAliases: true,
 
 				aliases: {
+					"GET /banners": `${SERVICE.Banner}.geted`,
+
 					"GET /products": `${SERVICE.Product}.geted`,
 					"GET /products/:id": `${SERVICE.Product}.get1`,
+					
+					"GET /provinces":`${SERVICE.Province}.geted`,
+					"GET /provinces/:id":`${SERVICE.Province}.get1`,
+
+					"GET /districts":`${SERVICE.District}.geted`,
+					"GET /districts/:id":`${SERVICE.District}.get1`,
+
+					"GET /wards":`${SERVICE.District}.geted`,
+					"GET /wards/:id":`${SERVICE.District}.get1`,
 
 					"GET /categories": `${SERVICE.Category}.geted`,
+
+					"GET /orders/:id": `${SERVICE.Order}.get1`,
 
 					"POST /users/register": `${SERVICE.User}.register`,
 					
 					"POST /auth/login-token": `${SERVICE.Auth}.login`,
+
+					"GET /attribute-values":`${SERVICE.AttributeValue}.geted`,
+
+					"GET /promotions":`${SERVICE.Promotion}.geted`,
+					"GET /promotions/:id":`${SERVICE.Promotion}.get1`,
+					
+					"POST /job/promotion/add":"job-worker.addPromotion",
+					"GET /job/welcome1":"job-worker.welcome1"
 				},
 
 				/** 
@@ -209,10 +268,7 @@ module.exports = {
 				callingOptions: {},
 
 				bodyParsers: {
-					json: {
-						strict: false,
-						limit: "25MB"
-					},
+					json: true,
 					urlencoded: {
 						extended: true,
 						limit: "25MB"
@@ -220,7 +276,7 @@ module.exports = {
 				},
 
 				// Mapping policy setting. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Mapping-policy
-				mappingPolicy: "all", // Available values: "all", "restrict"
+				mappingPolicy: "retrict", // Available values: "all", "restrict"
 
 				// Enable/disable logging
 				logging: true

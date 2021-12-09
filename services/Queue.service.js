@@ -1,24 +1,37 @@
 "use strict";
+const { Context }= require("moleculer");
 const DbService = require("moleculer-db");
-// const SqlAdapter = require("moleculer-db-adapter-sequelize");
-const QueueService = require("moleculer-bull");
+const { MoleculerError } = require("moleculer").Errors;
+const QueueService = require("../mixins/queue.mixin");
+const Promotion = require("../model/promotion.model");
+const serviceName = require("../utils/service-name");
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
  */
 
 module.exports = {
 	name: "task-worker",
-	mixins: [QueueService("redis://0.0.0.0:6379")],
+	mixins: [QueueService("redis://0.0.0.0:6379"),DbService],
 	queues: {
-		"mail.send": [
+		"promotion": [
 			{
-				name: "this isjob nam",
+				name: "trigger_promotion",
 				
-				process(job) {
-					this.logger.info("New important job received!", job.data);
-					// Send email a vip way here.
-					let tien="hi chao cau";		
-					return this.Promise.resolve(tien);
+				async process(job) {
+					try {
+						const {data}=job;
+					
+						await this.actions.passDataToEvent({
+							eventName:"promotion.update_status",
+							data:data,
+							groups:["promotion"]
+						});
+					} catch (error) {
+						throw new MoleculerError("trigger promotion not  successful", 400, "not sucessfull", {
+							message:error.message
+						});
+					}
+					//  return this.Promise.resolve("ok");
 					
 				}
 			},
@@ -92,7 +105,9 @@ module.exports = {
 	 * Methods
 	 */
 	methods: {
-
+		async	startingPrmotion(ctx,payload){
+			console.log("aaaaa");
+		}
 	},
 
 	/**
@@ -106,7 +121,7 @@ module.exports = {
 	 * Service started lifecycle event handler
 	 */
 	async started() {
-
+		
 	},
 
 	/**

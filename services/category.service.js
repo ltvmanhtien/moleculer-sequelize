@@ -39,7 +39,6 @@ module.exports = {
 			 */
 		created: {
 			auth: "required",
-			authen: ["SHOPOWNER", "ADMIN", "SUPERADMIN"],
 			rest: {
 				method: "POST",
 				path: "/"
@@ -97,7 +96,6 @@ module.exports = {
 			 * 
 			 */
 		geted:{
-			auth: "required",
 			// authen: ["SHOPOWNER", "ADMIN", "SUPERADMIN"],
 			rest: {
 				method: "GET",
@@ -147,8 +145,6 @@ module.exports = {
 			}
 		},
 		get1:{
-			auth: "required",
-			authen: ["SHOPOWNER", "ADMIN", "SUPERADMIN"],
 			rest: {
 				method: "GET",
 				path: "/:id"

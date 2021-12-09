@@ -3,7 +3,7 @@
 const DbService = require("moleculer-db");
 const { MoleculerError } = require("moleculer").Errors;
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
-const Sequelize = require("sequelize");
+const {Op,Sequelize} = require("sequelize");
 
 const SERVICE =require("../utils/service-name");
 const {adapter1} = require("../config/vars");
@@ -222,6 +222,31 @@ module.exports = {
 				}
 			}
 		},
+		getSkuOrId:{
+			async handler(ctx){
+				try {
+					const productId=ctx.params.id;
+					return this.adapter.model.findOne({
+						where: {
+							[Op.or]: [
+								{
+									id: !isNaN(parseInt(productId, 0)) && `${productId}`.length < 10
+										? parseInt(productId, 0)
+										: null
+								},
+								{
+									sku: productId.toString()
+								},
+							]
+						},
+					});
+				} catch (ex) {
+					throw new MoleculerError("get not successful", 400, "not sucessfull", {
+						message:ex.message
+					});
+				}
+			}
+		},
 		deleted:{
 			rest: {
 				method: "DELETE",
@@ -302,7 +327,7 @@ module.exports = {
 			created: [
 				function afterCreated(ctx) {
 					ctx.emit(`${SERVICE.Product}.created`,ctx.params);
-			
+			        
 					return ({
 						code: 0,
 						message: messages.CREATE_SUCCESS,
@@ -335,14 +360,32 @@ module.exports = {
 			let stock= await ctx.call(`${SERVICE.Stock}.find`,{query:{product_id:entity.id}});
 			entity.dataValues.stocks=stock;
 			return entity;
+		},
+		parseUpdateItem(item){
+			return this.adapter.model.update(
+				{
+					price: item.price,
+					discount: item.discount,
+					position: item.position,
+					original_price: item.original_price,
+					normal_price: item.normal_price,
+					updated_at: new Date()
+				},
+				{
+					where: {
+						id: item.id,
+						is_active: true
+					}
+				}
+			);
 		}
 	},
 	events: {
-		"Product.hello": {
-			// Register handler to the "other" group instead of "payment" group.
-			group: "Product",
-			handler(payload) {
-				console.log("product  receive event from Product");
+		"product.update_promotion":{
+			async handler(payload){
+				console.log("prodcut-option");
+				const promise = payload.map(this.parseUpdateItem);
+				return Promise.all(promise);
 			}
 		}
 	},

@@ -188,7 +188,7 @@ ProductModel.filterConditions=(params) =>{
 	}
 
 	if (options.keyword) {
-		const name = this.convertToEn(options.keyword);
+		const name = ProductModel.convertToEn(options.keyword);
 		const data = name.split(" ");
 		const operations = [];
 		data.forEach(value => {
@@ -703,6 +703,7 @@ const Product={
 		// BANNER_UPDATED: `${serviceName}.banner.updated`,
 		// BANNER_DELETED: `${serviceName}.banner.deleted`,
 	},
+	Types:ProductModel.Types,
 	convertToEn:ProductModel.convertToEn,
 	checkMinMaxOfConditionFields:ProductModel.checkMinMaxOfConditionFields,
 	sortConditions:ProductModel.sortConditions,

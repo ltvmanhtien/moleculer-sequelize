@@ -64,14 +64,68 @@ exports.load = async (ctx) => {
 /**
  * Load count for filter.
  */
-exports.count = async (req, res, next) => {
+exports.count = async (ctx) => {
 	try {
-		req.totalRecords = await User.count(
-			req.query
+		const {
+			roles,
+			types,
+			groups,
+			stores,
+			provinces,
+			staffs,
+			genders,
+			statuses,
+			services,
+			keyword,
+			min_created_at,
+			max_created_at,
+			min_last_purchase,
+			max_last_purchase,
+			min_total_order_price,
+			max_total_order_price,
+			min_total_invoice_price,
+			max_total_invoice_price,
+			min_total_point,
+			max_total_point,
+			min_total_debt,
+			max_total_debt,
+		
+			// sort condition
+			skip = 0,
+			limit = 20,
+			sort_by = "desc",
+			order_by = "created_at",
+		}=ctx.params;
+		const filterParam=User.filterConditions(
+			roles,
+			types,
+			groups,
+			stores,
+			provinces,
+			staffs,
+			genders,
+			statuses,
+			services,
+			keyword,
+			min_created_at,
+			max_created_at,
+			min_last_purchase,
+			max_last_purchase,
+			min_total_order_price,
+			max_total_order_price,
+			min_total_invoice_price,
+			max_total_invoice_price,
+			min_total_point,
+			max_total_point,
+			min_total_debt,
+			max_total_debt,
+		
 		);
-		return next();
+		const count = await  ctx.call(`${serviceName.User}.count`,{query:filterParam});
+		ctx.locals = ctx.locals ? ctx.locals : {};
+		ctx.locals.count = count;
 	} catch (ex) {
-		throw new MoleculerError(ex, 501, "ERR_SOMETHING", { a: 5, nodeID: "node-666" });
+		throw new MoleculerError(ex, 501, "ERR_SOMETHING", { message:ex.message });
 	}
 };
 

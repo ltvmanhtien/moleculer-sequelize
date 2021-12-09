@@ -1,4 +1,7 @@
 module.exports = {
+	serviceName:"general",
+	Attribute:"attributes",
+	AttributeValue:"attribute-value",
 	Banner:"banner",
 	Product:"products",
 	ProductOption:"product-options",
@@ -10,5 +13,10 @@ module.exports = {
 	Role:"roles",
 	Order:"orders",
 	StockHistory:"stock_histories",
-	Payment:"payments"
+	Payment:"payments",
+	PriceBook:"price-books",
+	Promotion:"promotion",
+	Province:"province",
+	District:"district",
+	Ward:"ward",
 };

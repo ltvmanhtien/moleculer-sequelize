@@ -23,8 +23,14 @@ exports.load = async (ctx) => {
  */
 exports.count = async (ctx) => {
 	try {
+		const {
+			keyword,
+			limit,
+			skip
+
+		}=ctx.params;
 		const filterParam=Store.filterConditions(
-			ctx.params
+			keyword
 		);
 		ctx.totalRecords = await  ctx.call(`${serviceName.Store}.count`,{query:filterParam});
 		

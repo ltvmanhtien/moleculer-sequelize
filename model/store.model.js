@@ -23,6 +23,15 @@ StoreModel.Statuses = {
 	ACTIVE: "active",
 	BANNED: "banned"
 };
+
+StoreModel.filterConditions=(params)=>{
+	const options = omitBy(params, isNil);
+	if(params.keyword){
+		options.name={ [Op.iLike]: `%${options.note}%` };
+	}
+	delete options.keyword;
+	return options;
+};
 StoreModel.transform = (model) => {
 	const transformed = {};
 	const fields = [
@@ -78,6 +87,7 @@ StoreModel.getChangedProperties = ({ newModel, oldModel }) => {
 	});
 	return dataChanged;
 };
+
 const Store={
 	name:"tbl_stores",
 	define:{

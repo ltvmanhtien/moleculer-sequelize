@@ -145,6 +145,7 @@ exports.prepareUpdate = async (ctx) => {
 exports.prepareRemove = async (ctx) => {
 	try {
 		const { productOption } = ctx.locals;
+		console.log(productOption);
 		if (productOption.is_default) {
           
 			throw new MoleculerError("Bạn không thể xóa sản phẩm mặc định: ${productOption.id}", 400, "NOT_FOUND", 

@@ -99,7 +99,15 @@ StockHistoryModel.transform = (params) => {
 };
 
 
-
+/**
+ * Load query
+ * @param {*} params
+ */
+StockHistoryModel.filterConditions=(params) =>{
+	const options = omitBy(params, isNil);
+	options.is_active = true;
+	return options;
+};
 
 /**
  * Filter only allowed fields from stock log
@@ -200,6 +208,7 @@ const StockHistory={
 			defaultValue: DataTypes.NOW
 		},
 	},
+	filterConditions:StockHistoryModel.filterConditions,
 	transform: StockHistoryModel.transform,
 	filterParams:StockHistoryModel.filterParams,
 	EventTypes:StockHistoryModel.EventTypes,

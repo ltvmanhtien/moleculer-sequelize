@@ -44,8 +44,8 @@ const Attribute={
 		},
 		type: {
 			type: DataTypes.STRING(20),
-			values: values(Attribute.Types),
-			defaultValue: Attribute.Types.TEXT
+			values: values(AttributeModel.Types),
+			defaultValue: AttributeModel.Types.TEXT
 		},
 		name: {
 			type: DataTypes.STRING(155),
@@ -53,8 +53,8 @@ const Attribute={
 		},
 		group: {
 			type: DataTypes.STRING(20),
-			values: values(Attribute.Groups),
-			defaultValue: Attribute.Groups.ITEM
+			values: values(AttributeModel.Groups),
+			defaultValue: AttributeModel.Groups.ITEM
 		},
 		require: {
 			type: DataTypes.BOOLEAN,
@@ -197,3 +197,4 @@ const Attribute={
 	},
 	filterParams : (params) => pick(params, PUBLIC_FIELDS)
 };
+module.exports=Attribute;

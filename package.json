@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "My Moleculer-based microservices project",
   "scripts": {
-    "dev": "moleculer-runner --repl --hot services/**/*.service.js",
+    "dev": "moleculer-runner -e --repl --hot services/**/*.service.js",
     "start": "moleculer-runner",
     "cli": "moleculer connect NATS",
     "ci": "jest --watch",
@@ -17,7 +17,7 @@
     "microservices",
     "moleculer"
   ],
-  "author": "",
+  "author": "tien",
   "devDependencies": {
     "eslint": "^7.23.0",
     "jest": "^26.6.3",
@@ -25,14 +25,12 @@
     "moleculer-repl": "^0.6.4"
   },
   "dependencies": {
-    "auth-adapter": "git+https://cocolux-deploy:ftUpkJ1RXAsR2bBwfsyb@gitlab.com/csell-team/cocoshopvn/auth-adapter.git",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.2",
-    "dd-trace": "^1.5.0",
     "dotenv": "^10.0.0",
     "dotenv-safe": "^8.2.0",
     "ioredis": "^4.17.3",
-    "jaeger-client": "^3.18.1",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "moleculer": "^0.14.13",
     "moleculer-bull": "^0.2.8",
