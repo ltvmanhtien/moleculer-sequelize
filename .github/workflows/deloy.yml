@@ -1,0 +1,14 @@
+name: deloy
+
+on:
+  push:
+    branches: [master]
+    
+jobs:
+  Build:
+    runs-on: self-hosted
+    
+    steps:        
+      - name: run build
+        run: docker-compose up -d
+      
