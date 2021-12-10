@@ -10,13 +10,6 @@ data:
   LOGLEVEL: info
   SERVICEDIR: services
   TRANSPORTER: nats://nats:4222
-  
-  
-  
-  
-  
-  
-  
   CACHER: redis://redis:6379
   MONGO_URI: mongodb://mongo/moleculer-sequelize
 
@@ -43,9 +36,12 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-  - host: moleculer-sequelize.127.0.0.1.nip.io
+  - host: vinall.local
     http:
       paths:
       - path: /
@@ -73,7 +69,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: moleculer-sequelize
+        image: manhtien465/backend1-api
         envFrom:
         - configMapRef:
             name: common-env
@@ -83,31 +79,31 @@ spec:
 
 ---
 #########################################################
-# Greeter service
+# user service
 #########################################################
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: greeter
+  name: user
 spec:
   selector:
     matchLabels:
-      app: greeter
+      app: user
   replicas: 2
   template:
     metadata:
       labels:
-        app: greeter
+        app: user
     spec:
       containers:
-      - name: greeter
-        image: moleculer-sequelize
+      - name: user
+        image: manhtien465/backend1-user
         envFrom:
         - configMapRef:
             name: common-env
         env:
           - name: SERVICES
-            value: greeter
+            value: user
 
 ---
 #########################################################
@@ -116,26 +112,26 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: products
+  name: auth
 spec:
   selector:
     matchLabels:
-      app: products
+      app: auth
   replicas: 2
   template:
     metadata:
       labels:
-        app: products
+        app: auth
     spec:
       containers:
-      - name: products
-        image: moleculer-sequelize
+      - name: auth
+        image: manhtien465/backend1-auth
         envFrom:
         - configMapRef:
             name: common-env
         env:
           - name: SERVICES
-            value: products
+            value: auth
 
 ---
 #########################################################
@@ -251,6 +247,7 @@ spec:
           name: nats
 
 ---
+
 #########################################################
 # Redis service
 #########################################################

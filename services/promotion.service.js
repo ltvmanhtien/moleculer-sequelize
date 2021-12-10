@@ -76,7 +76,56 @@ module.exports = {
 			],
 			updated:[
 				function afterUpdated(ctx) {
-
+					this.broker.emit("product.update_promotion",ctx.params);
+					this.broker.emit("product_option.update_promotion",ctx.params);
+					return ({
+						code: 0,
+						message: messages.UPDATE_SUCCESS
+					});
+				}
+			],
+			active:[
+				function afterUpdated(ctx) {
+					this.broker.emit("product.update_promotion",ctx.params);
+					this.broker.emit("product_option.update_promotion",ctx.params);
+					return ({
+						code: 0,
+						data:Promotion.transform(ctx.params),
+						message: messages.UPDATE_SUCCESS
+					});
+				}
+			],
+			cancel:[
+				function afterUpdated(ctx) {
+					this.broker.emit("product.update_promotion",ctx.params);
+					this.broker.emit("product_option.update_promotion",ctx.params);
+					return ({
+						code: 0,
+						data:Promotion.transform(ctx.params),
+						message: messages.UPDATE_SUCCESS
+					});
+				}
+			],
+			finish:[
+				function afterUpdated(ctx) {
+					this.broker.emit("product.update_promotion",ctx.params);
+					this.broker.emit("product_option.update_promotion",ctx.params);
+					return ({
+						code: 0,
+						data:Promotion.transform(ctx.params),
+						message: messages.UPDATE_SUCCESS
+					});
+				}
+			],
+			block:[
+				function afterUpdated(ctx) {
+					this.broker.emit("product.update_promotion",ctx.params);
+					this.broker.emit("product_option.update_promotion",ctx.params);
+					return ({
+						code: 0,
+						data:Promotion.transform(ctx.params),
+						message: messages.UPDATE_SUCCESS
+					});
 				}
 			]
 		}
@@ -215,11 +264,9 @@ module.exports = {
 					updated_by: pick(ctx.meta.user, ["id", "name"]),
 					updated_at: new Date()
 				};
-				await this.adapter.model.update(entity,{where:{id:promotion.id}});
-				return ({
-					code: 0,
-					message: messages.UPDATE_SUCCESS
-				});
+				let result=	await this.adapter.model.update(entity,{where:{id:promotion.id},returning:true});
+				ctx.params=result[1][0];
+				
 			}
 		},
 		finish:{
@@ -237,12 +284,9 @@ module.exports = {
 					updated_by: pick(ctx.meta.user, ["id", "name"]),
 					updated_at: new Date()
 				};
-				let result=	await this.adapter.model.update(entity,{where:{id:promotion.id}});
-				return ({
-					code: 0,
-					data:Promotion.transform(result),
-					message: messages.UPDATE_SUCCESS
-				});
+				let result=	await this.adapter.model.update(entity,{where:{id:promotion.id},returning:true});
+				ctx.params=result[1][0];
+			
 			}
 		},
 		active:{
