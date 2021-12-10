@@ -19,4 +19,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+        
+      - name: push doccker hub
+        run: docker-compose push
       
