@@ -6,7 +6,7 @@ on:
     
 jobs:
   Build:
-    runs-on: ubutu-lastest
+    runs-on: ubuntu-lastest
     
     steps:        
       - name: run build
