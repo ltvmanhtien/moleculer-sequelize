@@ -8,7 +8,7 @@ const HOST_DB = process.env.NODE_ENV !== "development" ? process.env.HOST_DB : "
 const DB_USER = process.env.NODE_ENV !== "development" ? process.env.DB_USER : "admin";
 const DB_PASS = process.env.NODE_ENV !== "development" ? process.env.DB_PASS : "admin";
 exports.adapter1 = new SqlAdapter(DB_NAME || "moleculer", DB_USER || "admin", DB_PASS || "admin", {
-	host: "206.189.43.33" || "localhost",
+	host: HOST_DB,
 	dialect: "postgres",
 	pool: {
 		max: 5,
